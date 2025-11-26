@@ -26,7 +26,7 @@ const fillTestData = async () => {
         
         if(count === 0) {
             await pool.query(`
-            INSERT INTO rooms ("size", "hasMinibar", "isAvailable") VALUES 
+            INSERT INTO rooms ("size", "has_minibar", "is_available") VALUES 
             ('double', true, true),
             ('single', true, true),
             ('suite', false, true)
