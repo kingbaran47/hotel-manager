@@ -6,7 +6,7 @@ import pool from "../config/db.js";
 export const getAllRooms = async (req, res) => {
     try {
         const {rows: rooms} = await pool.query("SELECT * FROM rooms");
-        res.json({
+        res.status(200).json({
             rooms
         })
     } catch(error) {
