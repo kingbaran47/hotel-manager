@@ -1,5 +1,6 @@
 import express from "express";
 import {getAllRooms, getRoomById, createRoom, deleteRoom, editRoom} from "../../controllers/roomsController.js";
+
 const router = express.Router();
 
 // Route fetch all rooms
