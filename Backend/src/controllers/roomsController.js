@@ -3,7 +3,7 @@ import pool from "../config/db.js";
 
 
 // Fetch all rooms from the database
-export const getAllRooms = async (req, res) => {
+export const getAllRooms = async (req, res, next) => {
     try {
         
         const {rows: rooms} = await pool.query("SELECT * FROM rooms");
@@ -11,24 +11,32 @@ export const getAllRooms = async (req, res) => {
             rooms
         })
     } catch(error) {
-        res.status(500).json({error: "Error while fetching rooms: " + error.message})
+        //res.status(500).json({error: "Error while fetching rooms: " + error.message})
+        next(error);
     }
 
 }
 
 // Fetch a room by Id
-export const getRoomById = async (req, res) => {
+export const getRoomById = async (req, res, next) => {
     const id = req.params.id;
     console.log(id)
-    const {rows} = await pool.query("SELECT * FROM rooms WHERE id=$1", [id])
-    if(rows.length === 0) return res.status(404).json({error: "Room does not exist."});
+    try {
+        const {rows} = await pool.query("SELECT * FROM rooms WHERE id=$1", [id])
     console.log(rows)
-    res.json(
+    if(rows.length === 0) return res.status(404).json({message: "Room does not exist."});
+    console.log(rows)
+    console.log(rows[0])
+    res.status(200).json(
         rows[0]
     );
+    } catch (error) {
+        next(error);
+    }
+    
 }
 // Create a new room with information from request
-export const createRoom = async (req, res) => {
+export const createRoom = async (req, res, next) => {
     //attribute aus req auslesen
     
     const {size, has_minibar} = req.body 
@@ -38,36 +46,36 @@ export const createRoom = async (req, res) => {
         const newId = rows[0].id;
         res.status(201).json({message: "Room has been created.", id: newId})
     } catch (error) {
-        res.status(500).json({error:"Error while creating new Room: " + error.message});
+       next(error);
     }
     
 }
 // Delete a room by Id
-export const deleteRoom = async (req, res) => {
+export const deleteRoom = async (req, res, next) => {
     const id = req.params.id
     console.log(id)
     try {
         const {rows} = await pool.query("SELECT * FROM rooms WHERE id=$1", [id])
-        if(rows.length === 0) return res.status(404).json({error:"Room does not exist."})
+        if(rows.length === 0) return res.status(404).json({message:"Room does not exist."})
         const result = await pool.query("DELETE FROM rooms WHERE id=$1", [id])
         return res.status(200).json({message: "Room has been deleted."})    
     } catch (error) {
-        return res.status(500).json({error:"Error while deleting room: " + error.message})
+         next(error);
     }
     
    
 }
 // Edit a room by Id
-export const editRoom = async (req, res) => {
+export const editRoom = async (req, res, next) => {
     const id = req.params.id 
     const {size, has_minibar, is_available} = req.body
     try {
         const {rows} = await pool.query("SELECT * FROM rooms WHERE id=$1", [id])
-        if (rows.length === 0) return res.status(404).json(error, "Room does not exist.");
+        if (rows.length === 0) return res.status(404).json({message: "Room does not exist."});
         const result = await pool.query("UPDATE rooms SET size=$1, has_minibar=$2, is_available=$3 WHERE id=$4", [size, has_minibar, is_available, id])
         return res.status(200).json({message:"Room has been edited."})
     } catch (error) {
-        return res.status(500).json({error:"Error while editing room: " + error.message})
+        next(error);
     }
     
 }
