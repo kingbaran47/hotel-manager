@@ -1,85 +1,61 @@
-import express from "express";
-import pool from "../config/db.js";
+import roomService from "../services/roomService.js";
+
+export const roomController = (roomService) => ({
 
 
-// Fetch all rooms from the database
-export const getAllRooms = async (req, res, next) => {
+
+    getAllRooms: async (req, res, next) => {
+        try {
+            const rooms = await roomService.getAllRooms();
+            res.status(200).json({rooms});
+        } catch (error) {
+            next(error);
+        }
+    },
+
+    getRoomById: async (req, res, next) => {
     try {
-        
-        const {rows: rooms} = await pool.query("SELECT * FROM rooms");
-        res.status(200).json({
-            rooms
-        })
-    } catch(error) {
-        //res.status(500).json({error: "Error while fetching rooms: " + error.message})
-        next(error);
-    }
-
-}
-
-// Fetch a room by Id
-export const getRoomById = async (req, res, next) => {
-    const id = req.params.id;
-    console.log(id)
-    try {
-        const {rows} = await pool.query("SELECT * FROM rooms WHERE id=$1", [id])
-    console.log(rows)
-    if(rows.length === 0) return res.status(404).json({message: "Room does not exist."});
-    console.log(rows)
-    console.log(rows[0])
-    res.status(200).json(
-        rows[0]
-    );
+      const room = await roomService.getRoomById(req.params.id);
+      if (!room) return res.status(404).json({ message: "Room does not exist." });
+      res.status(200).json(room);
     } catch (error) {
-        next(error);
+      next(error);
     }
-    
-}
-// Create a new room with information from request
-export const createRoom = async (req, res, next) => {
-    //attribute aus req auslesen
-    
-    const {size, has_minibar} = req.body 
-    console.log(size, has_minibar)
+  },
+
+  createRoom: async (req, res, next) => {
     try {
-        const {rows} = await pool.query("INSERT INTO rooms (size, has_minibar, is_available) VALUES ($1, $2, true) RETURNING id", [size, has_minibar])
-        const newId = rows[0].id;
-        res.status(201).json({message: "Room has been created.", id: newId})
+      const newId = await roomService.createRoom(req.body);
+      res.status(201).json({ message: "Room has been created.", id: newId });
     } catch (error) {
-       next(error);
+      next(error);
     }
-    
-}
-// Delete a room by Id
-export const deleteRoom = async (req, res, next) => {
-    const id = req.params.id
-    console.log(id)
+  },
+
+  deleteRoom: async (req, res, next) => {
     try {
-        const {rows} = await pool.query("SELECT * FROM rooms WHERE id=$1", [id])
-        if(rows.length === 0) return res.status(404).json({message:"Room does not exist."})
-        const result = await pool.query("DELETE FROM rooms WHERE id=$1", [id])
-        return res.status(200).json({message: "Room has been deleted."})    
+      const deleted = await roomService.deleteRoom(req.params.id);
+      if (!deleted) return res.status(404).json({ message: "Room does not exist." });
+      res.status(200).json({ message: "Room has been deleted." });
     } catch (error) {
-         next(error);
+      next(error);
     }
-    
-   
-}
-// Edit a room by Id
-export const editRoom = async (req, res, next) => {
-    const id = req.params.id 
-    const {size, has_minibar, is_available} = req.body
+  },
+
+  editRoom: async (req, res, next) => {
     try {
-        const {rows} = await pool.query("SELECT * FROM rooms WHERE id=$1", [id])
-        if (rows.length === 0) return res.status(404).json({message: "Room does not exist."});
-        const result = await pool.query("UPDATE rooms SET size=$1, has_minibar=$2, is_available=$3 WHERE id=$4", [size, has_minibar, is_available, id])
-        return res.status(200).json({message:"Room has been edited."})
+      const updated = await roomService.editRoom(req.params.id, req.body);
+      if (!updated) return res.status(404).json({ message: "Room does not exist." });
+      res.status(200).json({ message: "Room has been edited." });
     } catch (error) {
-        next(error);
+      next(error);
     }
-    
-}
+  }
 
 
+
+
+
+})
 
 
