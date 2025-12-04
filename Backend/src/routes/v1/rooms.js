@@ -1,21 +1,24 @@
+// routes/v1/rooms.js
 import express from "express";
-import {getAllRooms, getRoomById, createRoom, deleteRoom, editRoom} from "../../controllers/roomsController.js";
 
-const router = express.Router();
+export const createRoomsRouter = (controllers) => {
+  const router = express.Router();
 
-// Route fetch all rooms
-router.get("/", getAllRooms)
+  // Route fetch all rooms
+  router.get("/", controllers.getAllRooms);
 
-// Route fetch room by Id
-router.get("/:id", getRoomById)
+  // Route fetch room by Id
+  router.get("/:id", controllers.getRoomById);
 
-// Route create room
-router.post("/create", createRoom)
+  // Route create room
+  router.post("/create", controllers.createRoom);
 
-// Route delete room by Id
-router.delete("/:id", deleteRoom)
+  // Route delete room by Id
+  router.delete("/:id", controllers.deleteRoom);
 
-// Route update room by Id
-router.put("/:id", editRoom)
+  // Route update room by Id
+  router.put("/:id", controllers.editRoom);
 
-export default router;
+  return router;
+};
+
