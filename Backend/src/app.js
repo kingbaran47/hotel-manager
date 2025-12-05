@@ -3,14 +3,34 @@ import cors from "cors";
 import { createRoomsRouter } from "./routes/v1/rooms.js";
 import roomService from "./services/roomService.js";
 import { roomController } from "./controllers/roomsController.js";
+import swaggerUi from "swagger-ui-express"
+import swaggerJsdoc from "swagger-jsdoc"
 
-import * as roomsControllers from "./controllers/roomsController.js";
 
 export const createApp = (dbPool) => {
   const app = express();
 
   app.use(cors());
   app.use(express.json());
+
+
+  // Swagger setup
+  const swaggerOptions = {
+    definition: {
+      openapi: "3.0.0",
+      info: {
+        title: "eXXellent API",
+        version: "1.0.0",
+        description: "API documentation for the Hotel Room Serivce"
+      },
+    },
+    apis: ["./src/routes/**/*.js"]
+  };
+
+  const openapiSpec = swaggerJsdoc(swaggerOptions);
+  app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(openapiSpec))
+
+
 
 
   // Put database pool into services
