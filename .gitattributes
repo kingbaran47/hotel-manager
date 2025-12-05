@@ -1,8 +1,0 @@
-
-*.js linguist-language=JavaScript
-
-
-*.sql linguist-language=SQL
-
-
-*.test.js linguist-language=JavaScript
